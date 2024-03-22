@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  senha     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  perfil   Perfil? @relation(fields: [perfilId], references: [id])
+  perfilId String?
+
+  @@map("usuarios")
+}
+
+model Perfil {
+  id        String  @id @default(cuid())
+  nome      String
+  sobrenome String
+  avatar    String?
+
+  Usuario      Usuario[]
+  Profissional Profissional[]
+  Aluno        Aluno[]
+
+  @@map("perfis")
+}
+
+model Profissional {
+  id String @id @default(cuid())
+
+  Perfil   Perfil @relation(fields: [perfilId], references: [id])
+  perfilId String
+
+  Treino Treino[]
+
+  @@map("profissionais")
+}
+
+model Aluno {
+  id String @id @default(cuid())
+
+  Perfil   Perfil @relation(fields: [perfilId], references: [id])
+  perfilId String
+
+  Treino Treino[]
+
+  @@map("alunos")
+}
+
+model Treino {
+  id        String   @id @default(cuid())
+  duracao   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Profissional   Profissional @relation(fields: [profissionalId], references: [id])
+  profissionalId String
+
+  Aluno   Aluno   @relation(fields: [alunoId], references: [id])
+  alunoId String
+  Serie   Serie?  @relation(fields: [serieId], references: [id])
+  serieId String?
+
+  @@map("treinos")
+}
+
+model Serie {
+  id        String   @id @default(cuid())
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Treino           Treino[]
+  SeriesExercicios SeriesExercicios[]
+
+  @@map("series")
+}
+
+model Exercicio {
+  id        String @id @default(cuid())
+  nome      String
+  descricao String
+
+  SeriesExercicios SeriesExercicios[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("exercicios")
+}
+
+model SeriesExercicios {
+  id String @id @default(cuid())
+
+  Serie   Serie  @relation(fields: [serieId], references: [id])
+  serieId String
+
+  Exercicio   Exercicio @relation(fields: [exercicioId], references: [id])
+  exercicioId String
+
+  series     Int
+  repeticoes Int
+  modalidade String
+
+  Modalidade   Modalidade @relation(fields: [modalidade], references: [id])
+  modalidadeId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("series_exercicios")
+}
+
+model Modalidade {
+  id   String @id @default(cuid())
+  nome String
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  SeriesExercicios SeriesExercicios[]
+
+  @@map("modalidades")
+}
