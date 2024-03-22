@@ -1,3 +1,6 @@
+- [x] Teste marcador
+
+
 ## RFs (Requisitos funcionais)
 
  - [ ] Deve ser possível se cadastrar;
