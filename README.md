@@ -1,5 +1,3 @@
-- [x] Teste marcador
-
 
 ## RFs (Requisitos funcionais)
 
