@@ -6,10 +6,16 @@ Content-Type: application/json
 
 {
   "email": "rafael.brito@email.com",
-  "password": "123123",
+  "password": "123123"
 }
 
 ###
 
 # @name authenticate
-#TODO - Adicionar rota de autenticação na aplicação
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+  "email": "rafael.brito@email.com",
+  "password": "123123"
+}
