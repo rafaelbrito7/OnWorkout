@@ -10,7 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { hash } from 'bcryptjs'
 import { z } from 'zod'
 import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
-import { Roles } from 'src/utils/enums/roles.enum'
+import { Role } from 'src/utils/enums/roles.enum'
 import { Public } from 'src/auth/skip-auth.decorator'
 
 const createUserBodySchema = z.object({
@@ -19,7 +19,7 @@ const createUserBodySchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   avatar: z.string().url().optional(),
-  userType: z.enum([Roles.Admin, Roles.Professional, Roles.Athlete]),
+  userType: z.enum([Role.Admin, Role.Professional, Role.Athlete]),
 })
 
 type CreateUserBodySchema = z.infer<typeof createUserBodySchema>
