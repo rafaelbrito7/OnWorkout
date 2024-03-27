@@ -6,6 +6,9 @@ import { AuthModule } from './auth/auth.module'
 import { CreateUserController } from './controllers/create-user.controller'
 import { AuthenticateController } from './controllers/authenticate.controller'
 import { CreateExerciseController } from './controllers/create-exercise.controller'
+import { APP_GUARD } from '@nestjs/core'
+import { JwtAuthGuard } from './auth/jwt-auth.guard'
+import { RolesGuard } from './auth/authorization/roles.guard'
 
 @Module({
   imports: [
@@ -20,6 +23,16 @@ import { CreateExerciseController } from './controllers/create-exercise.controll
     AuthenticateController,
     CreateExerciseController,
   ],
-  providers: [PrismaService],
+  providers: [
+    PrismaService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

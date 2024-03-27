@@ -7,7 +7,10 @@ Content-Type: application/json
 
 {
   "email": "rafael.brito@email.com",
-  "password": "123123"
+  "password": "123123",
+  "firstName": "Rafael",
+  "lastName": "Brito",
+  "userType": "PROFESSIONAL"
 }
 
 ###

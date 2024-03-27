@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { compare } from 'bcryptjs'
+import { Public } from 'src/auth/skip-auth.decorator'
 import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { z } from 'zod'
@@ -26,6 +27,7 @@ export class AuthenticateController {
     private jwt: JwtService,
   ) {}
 
+  @Public()
   @Post()
   @HttpCode(200)
   @UsePipes(new ZodValidationPipe(authenticateBodySchema))
@@ -35,6 +37,9 @@ export class AuthenticateController {
     const user = await this.prisma.user.findUnique({
       where: {
         email,
+      },
+      include: {
+        profile: true,
       },
     })
 
@@ -50,6 +55,7 @@ export class AuthenticateController {
 
     const accessToken = this.jwt.sign({
       sub: user.id,
+      role: user.profile?.role,
     })
 
     return {
