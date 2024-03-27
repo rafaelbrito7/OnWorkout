@@ -125,7 +125,7 @@ model ExerciseTraining {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
-  @@map("exercises_trainings")
+  @@map("exercise_training")
 }
 
 model ExerciseTechnique {
