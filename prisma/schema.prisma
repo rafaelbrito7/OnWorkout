@@ -86,7 +86,7 @@ model Training {
   Athlete   Athlete @relation(fields: [athleteId], references: [id])
   athleteId String  @unique @map("athlete_id")
 
-  exercisesTraining ExerciseTraining[]
+  trainingExercises TrainingExercise[]
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
@@ -99,7 +99,7 @@ model Exercise {
   name        String
   description String
 
-  exercisesTraining ExerciseTraining[]
+  trainingExercises TrainingExercise[]
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
@@ -107,7 +107,7 @@ model Exercise {
   @@map("exercises")
 }
 
-model ExerciseTraining {
+model TrainingExercise {
   id          String @id @default(cuid())
   sets        Int
   repetitions Int
@@ -125,14 +125,14 @@ model ExerciseTraining {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
-  @@map("exercise_training")
+  @@map("training_exercises")
 }
 
 model ExerciseTechnique {
   id   String @id @default(cuid())
   name String
 
-  exercisesTraining ExerciseTraining[]
+  trainingExercises TrainingExercise[]
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
