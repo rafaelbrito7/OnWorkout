@@ -1,12 +1,12 @@
 
 ## RFs (Requisitos funcionais)
 
- - [ ] Deve ser possível se cadastrar;
- - [ ] Deve ser possível se autenticar;
- - [ ] Deve ser possível obter o perfil de um usuário logado;
+ - [x] Deve ser possível se cadastrar;
+ - [x] Deve ser possível se autenticar;
+ - [x] Deve ser possível obter o perfil de um usuário logado;
  - [ ] Deve ser possível que o profissional de musculação crie treinos;
  - [ ] Deve ser possível que o profissional de musculação compartilhe o treino de musculação com seu aluno;
- - [ ] Deve ser possível realizar o cadastro de um exercício no sistema;
+ - [x] Deve ser possível realizar o cadastro de um exercício no sistema;
  - [ ] Deve ser possível que o aluno visualize seu treino disponível;
  - [ ] Deve ser possível que o aluno requisite uma atualização de treino;
 

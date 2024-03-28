@@ -31,4 +31,7 @@ POST {{baseUrl}}/exercises
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
-
+{
+  "name": "no reto cabe tudo",
+  "description": "exercicio pra pompoarista"
+}
