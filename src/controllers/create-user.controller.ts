@@ -22,6 +22,8 @@ const createUserBodySchema = z.object({
   userType: z.enum([Role.Admin, Role.Professional, Role.Athlete]),
 })
 
+const bodyValidationPipe = new ZodValidationPipe(createUserBodySchema)
+
 type CreateUserBodySchema = z.infer<typeof createUserBodySchema>
 
 @Controller('/users')
@@ -31,8 +33,7 @@ export class CreateUserController {
   @Public()
   @Post()
   @HttpCode(201)
-  @UsePipes(new ZodValidationPipe(createUserBodySchema))
-  async handle(@Body() body: CreateUserBodySchema) {
+  async handle(@Body(bodyValidationPipe) body: CreateUserBodySchema) {
     const { email, password, firstName, lastName, avatar, userType } = body
 
     const userWithSameEmail = await this.prisma.user.findUnique({
