@@ -32,6 +32,6 @@ Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
 {
-  "name": "no reto cabe tudo",
-  "description": "exercicio pra pompoarista"
+  "name": "no reto cabe nada",
+  "description": "exercicio pra pompoarasdasasdasd"
 }
