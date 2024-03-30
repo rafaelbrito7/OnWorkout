@@ -5,12 +5,12 @@ import {
   HttpCode,
   Post,
 } from '@nestjs/common'
-import { Roles } from 'src/auth/authorization/roles.decorator'
-import { CurrentUser } from 'src/auth/current-user.decorator'
-import { UserPayload } from 'src/auth/jwt.strategy'
-import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
-import { PrismaService } from 'src/prisma/prisma.service'
-import { Role } from 'src/utils/enums/roles.enum'
+import { Roles } from '@/auth/authorization/roles.decorator'
+import { CurrentUser } from '@/auth/current-user.decorator'
+import { UserPayload } from '@/auth/jwt.strategy'
+import { ZodValidationPipe } from '@/pipes/zod-validation-pipe'
+import { PrismaService } from '@/prisma/prisma.service'
+import { Role } from '@/utils/enums/roles.enum'
 import { z } from 'zod'
 
 const createExerciseBodySchema = z.object({

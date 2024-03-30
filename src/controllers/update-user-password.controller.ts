@@ -5,11 +5,11 @@ import {
   HttpCode,
   Patch,
 } from '@nestjs/common'
-import { PrismaService } from 'src/prisma/prisma.service'
+import { PrismaService } from '@/prisma/prisma.service'
 import { z } from 'zod'
-import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
-import { CurrentUser } from 'src/auth/current-user.decorator'
-import { UserPayload } from 'src/auth/jwt.strategy'
+import { ZodValidationPipe } from '@/pipes/zod-validation-pipe'
+import { CurrentUser } from '@/auth/current-user.decorator'
+import { UserPayload } from '@/auth/jwt.strategy'
 import { compare, hash } from 'bcryptjs'
 
 const updateUserPasswordBodySchema = z.object({
