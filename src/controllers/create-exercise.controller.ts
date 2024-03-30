@@ -14,8 +14,17 @@ import { Role } from 'src/utils/enums/roles.enum'
 import { z } from 'zod'
 
 const createExerciseBodySchema = z.object({
-  name: z.string().min(4),
-  description: z.string().min(30),
+  name: z
+    .string()
+    .min(4, { message: 'Exercise name must have at least 4 characters.' }),
+  description: z
+    .string()
+    .min(10, {
+      message: 'Exercise description must have at least 10 characters.',
+    })
+    .max(50, {
+      message: 'Exercise description must have at most 50 characters.',
+    }),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(createExerciseBodySchema)

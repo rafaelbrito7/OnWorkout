@@ -9,6 +9,9 @@ import { CreateExerciseController } from './controllers/create-exercise.controll
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './auth/jwt-auth.guard'
 import { RolesGuard } from './auth/authorization/roles.guard'
+import { UpdateProfileController } from './controllers/update-profile.controller'
+import { UpdateUserPasswordController } from './controllers/update-user-password.controller'
+import { UpdateUserAvatarController } from './controllers/update-user-avatar.controller'
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { RolesGuard } from './auth/authorization/roles.guard'
     CreateUserController,
     AuthenticateController,
     CreateExerciseController,
+    UpdateProfileController,
+    UpdateUserPasswordController,
+    UpdateUserAvatarController,
   ],
   providers: [
     PrismaService,

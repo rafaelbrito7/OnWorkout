@@ -14,8 +14,14 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { z } from 'zod'
 
 const authenticateBodySchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().email({ message: 'Invalid email format' }),
+  password: z
+    .string()
+    .min(6, { message: 'Password must have at least 6 characters' })
+    .regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$/, {
+      message:
+        'Password must have at least one uppercase letter, one lowercase letter, and one number',
+    }),
 })
 
 type AuthenticateBodySchema = z.infer<typeof authenticateBodySchema>

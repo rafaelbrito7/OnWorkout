@@ -4,7 +4,6 @@ import {
   Controller,
   HttpCode,
   Post,
-  UsePipes,
 } from '@nestjs/common'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { hash } from 'bcryptjs'
@@ -14,10 +13,20 @@ import { Role } from 'src/utils/enums/roles.enum'
 import { Public } from 'src/auth/skip-auth.decorator'
 
 const createUserBodySchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
+  email: z.string().email({ message: 'Invalid email format' }),
+  password: z
+    .string()
+    .min(6, { message: 'Password must have at least 6 characters' })
+    .regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$/, {
+      message:
+        'Password must have at least one uppercase letter, one lowercase letter, and one number',
+    }),
+  firstName: z
+    .string()
+    .min(1, { message: 'First name must have at least 1 character' }),
+  lastName: z
+    .string()
+    .min(1, { message: 'Last name must have at least 1 character' }),
   avatar: z.string().url().optional(),
   userType: z.enum([Role.Admin, Role.Professional, Role.Athlete]),
 })
