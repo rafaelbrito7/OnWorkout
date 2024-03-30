@@ -13,6 +13,7 @@ const bodyValidationPipe = new ZodValidationPipe(updateUserAvatarBodySchema)
 
 type UpdateUserAvatarBodySchema = z.infer<typeof updateUserAvatarBodySchema>
 
+// TODO incomplete controller needs BLOB and image upload handling
 @Controller('/users/avatar')
 export class UpdateUserAvatarController {
   constructor(private prisma: PrismaService) {}

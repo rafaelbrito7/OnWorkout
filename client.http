@@ -55,7 +55,7 @@ Content-Type: application/json
 
 {
   "email": "rafael.brito@email.com",
-  "password": "@456Rafa"
+  "password": "@123Rafa"
 }
 
 ###
