@@ -33,7 +33,7 @@ export class UpdateProfileController {
   @HttpCode(200)
   async handle(
     @Body(bodyValidationPipe) body: UpdateProfileBodySchema,
-    @CurrentUser() user: UserPayload,
+    @CurrentUser() currentUser: UserPayload,
   ) {
     const { email, firstName, lastName } = body
 
@@ -51,7 +51,7 @@ export class UpdateProfileController {
 
     await this.prisma.user.update({
       where: {
-        id: user.sub,
+        id: currentUser.sub,
       },
       data: {
         email,

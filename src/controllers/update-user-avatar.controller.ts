@@ -21,13 +21,13 @@ export class UpdateUserAvatarController {
   @HttpCode(200)
   async handle(
     @Body(bodyValidationPipe) body: UpdateUserAvatarBodySchema,
-    @CurrentUser() user: UserPayload,
+    @CurrentUser() currentUser: UserPayload,
   ) {
     const { avatar } = body
 
     await this.prisma.user.update({
       where: {
-        id: user.sub,
+        id: currentUser.sub,
       },
       data: {
         profile: {

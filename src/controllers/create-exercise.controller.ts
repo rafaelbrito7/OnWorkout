@@ -40,7 +40,7 @@ export class CreateExerciseController {
   @HttpCode(201)
   async handle(
     @Body(bodyValidationPipe) body: CreateExerciseBodySchema,
-    @CurrentUser() user: UserPayload,
+    @CurrentUser() currentUser: UserPayload,
   ) {
     const { name, description } = body
     const exerciseWithSameName = await this.prisma.exercise.findUnique({
@@ -54,7 +54,7 @@ export class CreateExerciseController {
     }
     const currentUserProfile = await this.prisma.profile.findUnique({
       where: {
-        userId: user.sub,
+        userId: currentUser.sub,
       },
     })
     console.log(currentUserProfile)
