@@ -5,12 +5,12 @@ import {
   HttpCode,
   Post,
 } from '@nestjs/common'
-import { PrismaService } from '@/prisma/prisma.service'
+import { PrismaService } from '@/infra/prisma/prisma.service'
 import { hash } from 'bcryptjs'
 import { z } from 'zod'
-import { ZodValidationPipe } from '@/pipes/zod-validation-pipe'
+import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { Role } from '@/utils/enums/roles.enum'
-import { Public } from '@/auth/skip-auth.decorator'
+import { Public } from '@/infra/auth/skip-auth.decorator'
 
 const createUserBodySchema = z.object({
   email: z.string().email({ message: 'Invalid email format' }),

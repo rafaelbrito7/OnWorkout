@@ -5,11 +5,11 @@ import {
   HttpCode,
   Post,
 } from '@nestjs/common'
-import { Roles } from '@/auth/authorization/roles.decorator'
-import { CurrentUser } from '@/auth/current-user.decorator'
-import { UserPayload } from '@/auth/jwt.strategy'
-import { ZodValidationPipe } from '@/pipes/zod-validation-pipe'
-import { PrismaService } from '@/prisma/prisma.service'
+import { Roles } from '@/infra/auth/authorization/roles.decorator'
+import { CurrentUser } from '@/infra/auth/current-user.decorator'
+import { UserPayload } from '@/infra/auth/jwt.strategy'
+import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
+import { PrismaService } from '@/infra/prisma/prisma.service'
 import { Role } from '@/utils/enums/roles.enum'
 import { z } from 'zod'
 
