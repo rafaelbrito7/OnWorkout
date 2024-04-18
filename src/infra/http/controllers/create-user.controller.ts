@@ -28,7 +28,7 @@ const createUserBodySchema = z.object({
     .string()
     .min(1, { message: 'Last name must have at least 1 character' }),
   avatar: z.string().url().optional(),
-  userType: z.enum([Role.Admin, Role.Professional, Role.Athlete]),
+  role: z.enum([Role.Admin, Role.Professional, Role.Athlete]),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(createUserBodySchema)
@@ -43,7 +43,7 @@ export class CreateUserController {
   @Post()
   @HttpCode(201)
   async handle(@Body(bodyValidationPipe) body: CreateUserBodySchema) {
-    const { email, password, firstName, lastName, avatar, userType } = body
+    const { email, password, firstName, lastName, avatar, role } = body
 
     const userWithSameEmail = await this.prisma.user.findUnique({
       where: {
@@ -57,44 +57,25 @@ export class CreateUserController {
 
     const hashedPassword = await hash(password, 8)
 
-    if (userType === 'PROFESSIONAL') {
-      await this.prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          profile: {
-            create: {
-              firstName,
-              lastName,
-              avatar,
-              role: userType,
-              professional: {
-                create: {},
-              },
-            },
-          },
-        },
-      })
+    const profileData = {
+      firstName,
+      lastName,
+      avatar,
+      role,
     }
 
-    if (userType === 'ATHLETE') {
-      await this.prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          profile: {
-            create: {
-              firstName,
-              lastName,
-              avatar,
-              role: userType,
-              athlete: {
-                create: {},
-              },
-            },
-          },
-        },
-      })
+    if (role === Role.Professional || role === Role.Athlete) {
+      profileData[role] = { create: {} }
     }
+
+    await this.prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        profile: {
+          create: profileData,
+        },
+      },
+    })
   }
 }
