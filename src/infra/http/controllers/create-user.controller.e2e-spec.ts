@@ -4,6 +4,7 @@ import { Role } from '@/utils/enums/roles.enum'
 import { INestApplication } from '@nestjs/common'
 
 import { Test } from '@nestjs/testing'
+import { hash } from 'bcryptjs'
 import request from 'supertest'
 
 describe('Create user (E2E)', () => {
@@ -25,7 +26,7 @@ describe('Create user (E2E)', () => {
     await prisma.user.create({
       data: {
         email: 'admin@admin.com',
-        password: 'RandomP@ss123',
+        password: await hash('RandomP@ss123', 8),
         profile: {
           create: {
             firstName: 'Admin',
@@ -36,14 +37,12 @@ describe('Create user (E2E)', () => {
       },
     })
 
-    const loginResponse = await request(app.getHttpServer())
-      .post('/sessions')
-      .send({
-        email: 'admin@admin.com',
-        password: 'RandomP@ss123',
-      })
+    const response = await request(app.getHttpServer()).post('/sessions').send({
+      email: 'admin@admin.com',
+      password: 'RandomP@ss123',
+    })
 
-    accessToken = loginResponse.body.access_token
+    accessToken = response.body.access_token
   })
 
   test('[POST] /users', async () => {
@@ -52,13 +51,11 @@ describe('Create user (E2E)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         email: 'john.doe@email.com',
-        password: 'RandomPassword123',
+        password: 'R@ndomPassword1',
         firstName: 'John',
         lastName: 'Doe',
         role: Role.Professional,
       })
-
-    console.log(response)
 
     expect(response.statusCode).toBe(201)
 

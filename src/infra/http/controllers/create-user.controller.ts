@@ -9,7 +9,6 @@ import { hash } from 'bcryptjs'
 import { z } from 'zod'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { Role } from '@/utils/enums/roles.enum'
-import { Public } from '@/infra/auth/skip-auth.decorator'
 import { Roles } from '@/infra/auth/authorization/roles.decorator'
 import { UserRepository } from '@/domain/repositories/user/user.repository'
 
@@ -42,7 +41,6 @@ export class CreateUserController {
   constructor(private readonly UserRepository: UserRepository) {}
 
   @Roles(Role.Admin)
-  @Public()
   @Post()
   @HttpCode(201)
   async handle(@Body(bodyValidationPipe) body: CreateUserBodySchema) {
