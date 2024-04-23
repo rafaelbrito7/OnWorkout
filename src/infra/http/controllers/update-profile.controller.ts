@@ -23,7 +23,7 @@ const updateProfileBodySchema = z.object({
 
 const bodyValidationPipe = new ZodValidationPipe(updateProfileBodySchema)
 
-type UpdateProfileBodySchema = z.infer<typeof updateProfileBodySchema>
+export type UpdateProfileBodySchema = z.infer<typeof updateProfileBodySchema>
 
 @Controller('/users/profile')
 export class UpdateProfileController {
@@ -59,8 +59,10 @@ export class UpdateProfileController {
           update: {
             firstName,
             lastName,
+            updatedAt: new Date(),
           },
         },
+        updatedAt: new Date(),
       },
     })
   }

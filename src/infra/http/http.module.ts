@@ -6,6 +6,7 @@ import { UpdateProfileController } from './controllers/update-profile.controller
 import { UpdateUserAvatarController } from './controllers/update-user-avatar.controller'
 import { UpdateUserPasswordController } from './controllers/update-user-password.controller'
 import { PrismaService } from '../prisma/prisma.service'
+import { UserRepository } from '@/domain/repositories/user/user.repository'
 
 @Module({
   controllers: [
@@ -16,6 +17,6 @@ import { PrismaService } from '../prisma/prisma.service'
     UpdateUserPasswordController,
     UpdateUserAvatarController,
   ],
-  providers: [PrismaService],
+  providers: [PrismaService, UserRepository],
 })
 export class HttpModule {}

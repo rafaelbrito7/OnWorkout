@@ -5,18 +5,20 @@ import {
   HttpCode,
   Post,
 } from '@nestjs/common'
-import { PrismaService } from '@/infra/prisma/prisma.service'
 import { hash } from 'bcryptjs'
 import { z } from 'zod'
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe'
 import { Role } from '@/utils/enums/roles.enum'
 import { Public } from '@/infra/auth/skip-auth.decorator'
+import { Roles } from '@/infra/auth/authorization/roles.decorator'
+import { UserRepository } from '@/domain/repositories/user/user.repository'
 
 const createUserBodySchema = z.object({
   email: z.string().email({ message: 'Invalid email format' }),
   password: z
     .string()
     .min(6, { message: 'Password must have at least 6 characters' })
+    .max(15, { message: 'Password must have at most 15 characters' })
     .regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$/, {
       message:
         'Password must have at least one uppercase letter, one lowercase letter, and one number',
@@ -28,28 +30,25 @@ const createUserBodySchema = z.object({
     .string()
     .min(1, { message: 'Last name must have at least 1 character' }),
   avatar: z.string().url().optional(),
-  userType: z.enum([Role.Admin, Role.Professional, Role.Athlete]),
+  role: z.enum([Role.Admin, Role.Professional, Role.Athlete]),
 })
 
 const bodyValidationPipe = new ZodValidationPipe(createUserBodySchema)
 
-type CreateUserBodySchema = z.infer<typeof createUserBodySchema>
+export type CreateUserBodySchema = z.infer<typeof createUserBodySchema>
 
 @Controller('/users')
 export class CreateUserController {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly UserRepository: UserRepository) {}
 
+  @Roles(Role.Admin)
   @Public()
   @Post()
   @HttpCode(201)
   async handle(@Body(bodyValidationPipe) body: CreateUserBodySchema) {
-    const { email, password, firstName, lastName, avatar, userType } = body
+    const { email, password, firstName, lastName, avatar, role } = body
 
-    const userWithSameEmail = await this.prisma.user.findUnique({
-      where: {
-        email,
-      },
-    })
+    const userWithSameEmail = await this.UserRepository.getOneByEmail(email)
 
     if (userWithSameEmail) {
       throw new ConflictException('User with same email already exists!')
@@ -57,44 +56,26 @@ export class CreateUserController {
 
     const hashedPassword = await hash(password, 8)
 
-    if (userType === 'PROFESSIONAL') {
-      await this.prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          profile: {
-            create: {
-              firstName,
-              lastName,
-              avatar,
-              role: userType,
-              professional: {
-                create: {},
-              },
-            },
-          },
-        },
-      })
+    const profileData = {
+      firstName,
+      lastName,
+      avatar,
+      role,
     }
 
-    if (userType === 'ATHLETE') {
-      await this.prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          profile: {
-            create: {
-              firstName,
-              lastName,
-              avatar,
-              role: userType,
-              athlete: {
-                create: {},
-              },
-            },
-          },
-        },
-      })
+    if (role === Role.Professional || role === Role.Athlete) {
+      profileData[role] = { create: {} }
+
+      const newUser: CreateUserBodySchema = {
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        avatar,
+        role,
+      }
+
+      await this.UserRepository.create(newUser)
     }
   }
 }
