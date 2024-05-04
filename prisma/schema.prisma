@@ -14,9 +14,9 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(cuid())
-  email    String @unique
-  password String
+  id             String  @id @default(cuid())
+  email          String  @unique
+  password       String
   firstTimeLogin Boolean @default(true) @map("first_time_login")
 
   profile Profile?
@@ -52,7 +52,7 @@ model Profile {
 model Professional {
   id String @id @default(cuid())
 
-  trainings Training[]
+  workoutPlan WorkoutPlan[]
 
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String  @unique @map("profile_id")
@@ -66,7 +66,7 @@ model Professional {
 model Athlete {
   id String @id @default(cuid())
 
-  training Training?
+  workoutPlan WorkoutPlan?
 
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String  @unique @map("profile_id")
@@ -78,7 +78,7 @@ model Athlete {
 }
 
 //TODO update training model to receive an expiration date
-model Training {
+model WorkoutPlan {
   id        String  @id @default(cuid())
   duration  String
   isExpired Boolean @default(false) @map("is_expired")
@@ -101,9 +101,9 @@ model Exercise {
   id          String @id @default(cuid())
   name        String @unique
   description String
-  
+
   createdBy   Profile? @relation(fields: [createdById], references: [id])
-  createdById String? @map("created_by_id")
+  createdById String?  @map("created_by_id")
 
   trainingExercises TrainingExercise[]
 
@@ -119,29 +119,14 @@ model TrainingExercise {
   repetitions Int
   interval    Int
 
-  Training   Training @relation(fields: [trainingId], references: [id])
-  trainingId String   @map("training_id")
+  workoutPlan   WorkoutPlan @relation(fields: [workoutPlanId], references: [id])
+  workoutPlanId String      @map("workout_plan_id")
 
   Exercise   Exercise @relation(fields: [exerciseId], references: [id])
   exerciseId String   @map("exercise_id")
-
-  exerciseTechnique   ExerciseTechnique @relation(fields: [exerciseTechniqueId], references: [id])
-  exerciseTechniqueId String            @map("exercise_technique_id")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
   @@map("training_exercises")
-}
-
-model ExerciseTechnique {
-  id   String @id @default(cuid())
-  name String
-
-  trainingExercises TrainingExercise[]
-
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
-
-  @@map("exercise_techniques")
 }
