@@ -5,7 +5,7 @@ import { ResourceNotFound } from './errors/resource-not-found'
 import { Unauthorized } from './errors/unauthorized'
 import { CustomExerciseRepository } from '../repositories/custom-exercise.repository'
 import { Exercise } from '../../enterprise/entities/exercise'
-import { UserProfileRepository } from '../repositories/user-profile.repository'
+import { UserRepository } from '../repositories/user.repository'
 
 interface CreateExerciseUseCaseRequest {
   currentUserId: string
@@ -20,7 +20,7 @@ type CreateExerciseUseCaseResponse = Either<
 
 export class CreateExerciseUseCase {
   constructor(
-    private userProfileRepository: UserProfileRepository,
+    private userRepository: UserRepository,
     private customExerciseRepository: CustomExerciseRepository,
   ) {}
 
@@ -29,21 +29,22 @@ export class CreateExerciseUseCase {
     name,
     description,
   }: CreateExerciseUseCaseRequest): Promise<CreateExerciseUseCaseResponse> {
-    const userProfile =
-      await this.userProfileRepository.findByUserId(currentUserId)
+    const userWhoRegistered = await this.userRepository.findById(currentUserId)
 
-    if (!userProfile) {
+    if (!userWhoRegistered) {
       return left(new ResourceNotFound('User not found.'))
     }
 
-    if (userProfile?.role !== Role.Professional) {
+    if (userWhoRegistered.profile. !== Role.Professional) {
       return left(new Unauthorized())
     }
+
+    const profile = userWhoRegistered.profile
 
     const exercise = Exercise.create({
       name,
       description,
-      createdById: userProfile.id,
+      createdById: userWhoRegistered.profile.,
     })
 
     await this.customExerciseRepository.create(exercise)

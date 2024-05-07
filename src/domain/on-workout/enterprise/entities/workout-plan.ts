@@ -1,10 +1,12 @@
 import { AggregateRoot } from '@/core/entities/aggregate-root'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Optional } from '@/core/types/optional'
+import { WorkoutPlanExerciseList } from './workout-plan-exercise-list'
 
 export interface WorkoutPlanProps {
-  professionalProfileId: UniqueEntityID
-  atheleteProfileId: UniqueEntityID
+  professionalId: UniqueEntityID
+  athleteId: UniqueEntityID
+  workoutPlanExercises: WorkoutPlanExerciseList
   expirationDate: Date
   isExpired?: boolean
   createdAt: Date
@@ -12,12 +14,16 @@ export interface WorkoutPlanProps {
 }
 
 export class WorkoutPlan extends AggregateRoot<WorkoutPlanProps> {
-  get professionalProfileId() {
-    return this.props.professionalProfileId
+  get professionalId() {
+    return this.props.professionalId
   }
 
-  get atheleteProfileId() {
-    return this.props.atheleteProfileId
+  get athleteId() {
+    return this.props.athleteId
+  }
+
+  get workoutPlanExercises() {
+    return this.props.workoutPlanExercises
   }
 
   get expirationDate() {
@@ -51,7 +57,10 @@ export class WorkoutPlan extends AggregateRoot<WorkoutPlanProps> {
   }
 
   static create(
-    props: Optional<WorkoutPlanProps, 'createdAt' | 'isExpired'>,
+    props: Optional<
+      WorkoutPlanProps,
+      'createdAt' | 'isExpired' | 'workoutPlanExercises'
+    >,
     id?: UniqueEntityID,
   ) {
     const workoutPlan = new WorkoutPlan(
@@ -59,6 +68,8 @@ export class WorkoutPlan extends AggregateRoot<WorkoutPlanProps> {
         ...props,
         createdAt: props.createdAt ?? new Date(),
         isExpired: props.isExpired ?? false,
+        workoutPlanExercises:
+          props.workoutPlanExercises ?? new WorkoutPlanExerciseList([]),
       },
       id,
     )

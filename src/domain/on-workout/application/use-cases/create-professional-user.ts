@@ -2,9 +2,7 @@ import { User } from '../../enterprise/entities/user'
 import { UserRepository } from '../repositories/user.repository'
 import { Either, left, right } from '@/core/either'
 import { Conflict } from './errors/conflict'
-import { Role } from '@/utils/enums/roles.enum'
 import { ProfessionalProfile } from '../../enterprise/entities/professional-profile'
-import { UserProfile } from '../../enterprise/entities/user-profile'
 import { hash } from 'bcryptjs'
 
 interface CreateProfessionalUserUseCaseRequest {
@@ -35,22 +33,15 @@ export class CreateProfessionalUserUseCase {
 
     const hashedPassword = await hash(password, 8)
 
+    const professionalProfile = ProfessionalProfile.create(profile)
+
     const user = User.create({
       email,
       password: hashedPassword,
-    })
-
-    const professionalProfile = ProfessionalProfile.create(profile)
-
-    const userProfile = UserProfile.create({
-      userId: user.id,
-      profileId: professionalProfile.id,
+      firstTimeLogin: false,
       profile: professionalProfile,
-      role: Role.Professional,
+      profileId: professionalProfile.id,
     })
-
-    user.userProfile = userProfile
-    user.firstTimeLogin = false
 
     await this.userRepository.create(user)
 

@@ -7,7 +7,7 @@ import { Exercise } from '../../enterprise/entities/exercise'
 import { UserProfileRepository } from '../repositories/user-profile.repository'
 
 interface EditExerciseUseCaseRequest {
-  currentUserId: string
+  currentUserProfileId: string
   exerciseId: string
   name: string
   description: string
@@ -25,13 +25,13 @@ export class EditExerciseUseCase {
   ) {}
 
   async execute({
-    currentUserId,
+    currentUserProfileId,
     exerciseId,
     name,
     description,
   }: EditExerciseUseCaseRequest): Promise<EditExerciseUseCaseResponse> {
     const userProfile =
-      await this.userProfileRepository.findByUserId(currentUserId)
+      await this.userProfileRepository.findByUserId(currentUserProfileId)
 
     if (!userProfile) {
       return left(new ResourceNotFound('User not found.'))

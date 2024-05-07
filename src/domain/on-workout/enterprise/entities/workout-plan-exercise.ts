@@ -7,8 +7,8 @@ export interface WorkoutPlanExerciseProps {
   exerciseId: UniqueEntityID
   sets: number
   repetitions: number
-  intervalBetweenSets: number
-  exerciseTechnique?: string
+  restTime: number
+  exerciseTechnique: string
   createdAt: Date
   updatedAt?: Date
 }
@@ -30,12 +30,12 @@ export class WorkoutPlanExercise extends Entity<WorkoutPlanExerciseProps> {
     return this.props.repetitions
   }
 
-  get intervalBetweenSets() {
-    return this.props.intervalBetweenSets
+  get restTime() {
+    return this.props.restTime
   }
 
   get exerciseTechnique() {
-    return this.props.exerciseTechnique
+    return this.props.exerciseTechnique ?? undefined
   }
 
   get createdAt() {
@@ -56,12 +56,12 @@ export class WorkoutPlanExercise extends Entity<WorkoutPlanExerciseProps> {
     this.touch()
   }
 
-  set intervalBetweenSets(intervalBetweenSets: number) {
-    this.props.intervalBetweenSets = intervalBetweenSets
+  set restTime(restTime: number) {
+    this.props.restTime = restTime
     this.touch()
   }
 
-  set exerciseTechnique(exerciseTechnique: string | undefined) {
+  set exerciseTechnique(exerciseTechnique: string) {
     this.props.exerciseTechnique = exerciseTechnique
     this.touch()
   }
@@ -81,7 +81,7 @@ export class WorkoutPlanExercise extends Entity<WorkoutPlanExerciseProps> {
       {
         ...props,
         createdAt: props.createdAt ?? new Date(),
-        exerciseTechnique: props.exerciseTechnique ?? undefined,
+        exerciseTechnique: props.exerciseTechnique ?? 'SEM TÉCNICA',
       },
       id,
     )
