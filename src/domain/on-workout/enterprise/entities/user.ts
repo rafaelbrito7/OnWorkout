@@ -1,25 +1,22 @@
 import { AggregateRoot } from '@/core/entities/aggregate-root'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Optional } from '@/core/types/optional'
-
 import { Role } from '@/utils/enums/roles.enum'
-import { ProfessionalProfile } from './professional-profile'
 import { AthleteProfile } from './athlete-profile'
+import { ProfessionalProfile } from './professional-profile'
 
-export interface UserProps<T extends AthleteProfile | ProfessionalProfile> {
+export interface UserProps {
   email: string
   password: string
   role: Role
   firstTimeLogin: boolean
   profileId: UniqueEntityID
-  profile: T
+  profile: AthleteProfile | ProfessionalProfile
   createdAt: Date
   updatedAt?: Date
 }
 
-export class User<
-  T extends AthleteProfile | ProfessionalProfile,
-> extends AggregateRoot<UserProps<T>> {
+export class User extends AggregateRoot<UserProps> {
   get email() {
     return this.props.email
   }
@@ -81,7 +78,7 @@ export class User<
     this.touch()
   }
 
-  set profile(profile: T) {
+  set profile(profile) {
     this.props.profile = profile
     this.touch()
   }
@@ -94,8 +91,8 @@ export class User<
     return this.role === Role.Athlete
   }
 
-  static create<T extends AthleteProfile | ProfessionalProfile>(
-    props: Optional<UserProps<T>, 'createdAt' | 'firstTimeLogin'>,
+  static create(
+    props: Optional<'createdAt' | 'firstTimeLogin'>,
     id?: UniqueEntityID,
   ) {
     const user = new User(
