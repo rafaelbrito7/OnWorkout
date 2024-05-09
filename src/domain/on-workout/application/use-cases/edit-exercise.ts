@@ -4,10 +4,10 @@ import { ResourceNotFound } from './errors/resource-not-found'
 import { Unauthorized } from './errors/unauthorized'
 import { CustomExerciseRepository } from '../repositories/custom-exercise.repository'
 import { Exercise } from '../../enterprise/entities/exercise'
-import { UserProfileRepository } from '../repositories/user-profile.repository'
+import { UserRepository } from '../repositories/user.repository'
 
 interface EditExerciseUseCaseRequest {
-  currentUserProfileId: string
+  currentUserId: string
   exerciseId: string
   name: string
   description: string
@@ -20,21 +20,20 @@ type EditExerciseUseCaseResponse = Either<
 
 export class EditExerciseUseCase {
   constructor(
-    private userProfileRepository: UserProfileRepository,
+    private userRepository: UserRepository,
     private customExerciseRepository: CustomExerciseRepository,
   ) {}
 
   async execute({
-    currentUserProfileId,
+    currentUserId,
     exerciseId,
     name,
     description,
   }: EditExerciseUseCaseRequest): Promise<EditExerciseUseCaseResponse> {
-    const userProfile =
-      await this.userProfileRepository.findByUserId(currentUserProfileId)
+    const professional = await this.userRepository.findById(currentUserId)
 
-    if (!userProfile) {
-      return left(new ResourceNotFound('User not found.'))
+    if (!professional) {
+      return left(new ResourceNotFound('Professional not found.'))
     }
 
     const exercise = await this.customExerciseRepository.findById(exerciseId)
@@ -43,7 +42,7 @@ export class EditExerciseUseCase {
       return left(new ResourceNotFound('Exercise not found.'))
     }
 
-    if (userProfile.id !== exercise.createdById) {
+    if (professional.id !== exercise.createdById) {
       return left(new Unauthorized())
     }
 

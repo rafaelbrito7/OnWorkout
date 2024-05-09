@@ -29,22 +29,20 @@ export class CreateExerciseUseCase {
     name,
     description,
   }: CreateExerciseUseCaseRequest): Promise<CreateExerciseUseCaseResponse> {
-    const userWhoRegistered = await this.userRepository.findById(currentUserId)
+    const professional = await this.userRepository.findById(currentUserId)
 
-    if (!userWhoRegistered) {
-      return left(new ResourceNotFound('User not found.'))
+    if (!professional) {
+      return left(new ResourceNotFound('Professional not found.'))
     }
 
-    if (userWhoRegistered.profile. !== Role.Professional) {
+    if (professional.role !== Role.Professional) {
       return left(new Unauthorized())
     }
-
-    const profile = userWhoRegistered.profile
 
     const exercise = Exercise.create({
       name,
       description,
-      createdById: userWhoRegistered.profile.,
+      createdById: professional.id,
     })
 
     await this.customExerciseRepository.create(exercise)

@@ -29,7 +29,7 @@ describe('Create Professional User', () => {
     })
 
     expect(result.isRight()).toEqual(true)
-    expect(inMemoryProfessionalProfileRepository[0]).toMatchObject({
+    expect(inMemoryProfessionalProfileRepository.items[0]).toMatchObject({
       firstName: 'User',
       lastName: 'Name',
     })

@@ -52,6 +52,11 @@ export class WorkoutPlan extends AggregateRoot<WorkoutPlanProps> {
     this.touch()
   }
 
+  set workoutPlanExercises(workoutPlanExercises: WorkoutPlanExerciseList) {
+    this.props.workoutPlanExercises = workoutPlanExercises
+    this.touch()
+  }
+
   private touch() {
     this.props.updatedAt = new Date()
   }

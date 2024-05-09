@@ -3,17 +3,13 @@ import { ResourceNotFound } from './errors/resource-not-found'
 import { Unauthorized } from './errors/unauthorized'
 import { ProfessionalProfileRepository } from '../repositories/professional-profile.repository'
 import { ProfessionalProfile } from '../../enterprise/entities/professional-profile'
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 
 interface EditProfessionalProfileUseCaseRequest {
-  userProfileId: string
-  currentUserProfileId: string
+  userId: string
+  currentUserId: string
   firstName: string
   lastName: string
   avatar?: string
-  workoutPlans: UniqueEntityID[]
-  createdAt: Date
-  updatedAt?: Date
 }
 
 type EditProfessionalProfileUseCaseResponse = Either<
@@ -27,22 +23,20 @@ export class EditProfessionalProfileUseCase {
   ) {}
 
   async execute({
-    userProfileId,
-    currentUserProfileId,
+    userId,
+    currentUserId,
     firstName,
     lastName,
     avatar,
   }: EditProfessionalProfileUseCaseRequest): Promise<EditProfessionalProfileUseCaseResponse> {
     const professionalProfile =
-      await this.professionalProfileRepository.findByUserProfileId(
-        userProfileId,
-      )
+      await this.professionalProfileRepository.findByUserId(userId)
 
     if (!professionalProfile) {
       return left(new ResourceNotFound('Professional profile was not found.'))
     }
 
-    if (professionalProfile.userProfileId.toString() !== currentUserProfileId)
+    if (professionalProfile.userId.toString() !== currentUserId)
       return left(new Unauthorized())
 
     professionalProfile.firstName = firstName

@@ -4,14 +4,12 @@ import { ResourceNotFound } from './errors/resource-not-found'
 import { Unauthorized } from './errors/unauthorized'
 import { WorkoutPlan } from '../../enterprise/entities/workout-plan'
 import { WorkoutPlanExercise } from '../../enterprise/entities/workout-plan-exercise'
-import { WorkoutPlanExerciseRepository } from '../repositories/workout-plan-exercise.repository'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { WorkoutPlanRepository } from '../repositories/workout-plan.repository'
-import { UserRepository } from '../repositories/user.repository'
-import { ProfessionalProfile } from '../../enterprise/entities/professional-profile'
 import { ProfessionalProfileRepository } from '../repositories/professional-profile.repository'
 import { AthleteProfileRepository } from '../repositories/athlete-profile.repository'
-import { User } from '../../enterprise/entities/user'
+import { Role } from '@/utils/enums/roles.enum'
+import { WorkoutPlanExerciseList } from '../../enterprise/entities/workout-plan-exercise-list'
 
 interface CreateWorkoutPlanUseCaseRequest {
   currentUserId: string
@@ -19,7 +17,7 @@ interface CreateWorkoutPlanUseCaseRequest {
   expirationDate: Date
   exercises: [
     {
-      exerciseId: string
+      id: string
       sets: number
       repetitions: number
       restTime: number
@@ -35,11 +33,9 @@ type CreateWorkoutPlanUseCaseResponse = Either<
 
 export class CreateWorkoutPlanUseCase {
   constructor(
-    private userRepository: UserRepository,
     private professionalProfileRepository: ProfessionalProfileRepository,
     private athleteProfileRepository: AthleteProfileRepository,
     private workoutPlanRepository: WorkoutPlanRepository,
-    private workoutPlanExerciseRepository: WorkoutPlanExerciseRepository,
   ) {}
 
   async execute({
@@ -48,51 +44,49 @@ export class CreateWorkoutPlanUseCase {
     expirationDate,
     exercises,
   }: CreateWorkoutPlanUseCaseRequest): Promise<CreateWorkoutPlanUseCaseResponse> {
-    const professionalUser = await this.userRepository.findById(currentUserId)
+    const professional =
+      await this.professionalProfileRepository.findByUserId(currentUserId)
 
-    if (!professionalUser) {
-      return left(new ResourceNotFound('User not found.'))
+    if (!professional) {
+      return left(new ResourceNotFound('Professional not found.'))
     }
 
-    if (!professionalUser.isProfessional()) {
+    if (professional.user.role !== Role.Professional) {
       return left(new Unauthorized())
     }
 
-    const professionalProfile =
-      await this.professionalProfileRepository.findById(
-        professionalUser.profileId.toString(),
-      )
+    const athlete = await this.athleteProfileRepository.findByUserId(athleteId)
 
-    const athleteUser = await this.userRepository.findById(athleteId)
-
-    if (!athleteUser) {
+    if (!athlete) {
       return left(new ResourceNotFound('Athlete not found.'))
     }
 
     const workoutPlan = WorkoutPlan.create({
-      professionalId: professionalUser.id,
-      athleteId: athleteUser.id,
+      professionalId: professional.id,
+      athleteId: athlete.id,
       expirationDate,
     })
 
     await this.workoutPlanRepository.create(workoutPlan)
 
-    const workoutPlanExercises = exercises.map(async (exercise) => {
-      const workoutPlanExercise = WorkoutPlanExercise.create({
+    const workoutPlanExercises = exercises.map((exercise) => {
+      return WorkoutPlanExercise.create({
         workoutPlanId: workoutPlan.id,
-        exerciseId: new UniqueEntityID(exercise.exerciseId),
+        exerciseId: new UniqueEntityID(exercise.id),
         repetitions: exercise.repetitions,
         restTime: exercise.restTime,
         exerciseTechnique: exercise.exerciseTechnique,
         sets: exercise.sets,
       })
-
-      await this.workoutPlanExerciseRepository.create(workoutPlanExercise)
-
-      return workoutPlanExercise
     })
 
-    professionalUser.profile = professionalUser.profile as ProfessionalProfile
+    workoutPlan.workoutPlanExercises = new WorkoutPlanExerciseList(
+      workoutPlanExercises,
+    )
+
+    professional.workoutPlans.add(workoutPlan)
+
+    await this.workoutPlanRepository.create(workoutPlan)
 
     return right({
       workoutPlan,

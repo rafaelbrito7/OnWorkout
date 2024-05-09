@@ -1,7 +1,7 @@
 import { InMemoryUserRepository } from 'test/repositories/in-memory-user.repository'
 import { Unauthorized } from './errors/unauthorized'
 import { EditUserPasswordUseCase } from './edit-user-password'
-import { compare } from 'bcryptjs'
+import { compare, hash } from 'bcryptjs'
 import { BadRequest } from './errors/bad-request'
 import { makeUser } from '../../enterprise/factories/make-user'
 
@@ -15,7 +15,9 @@ describe('Update User Password', () => {
   })
 
   it('should be able to edit an athlete user password', async () => {
-    const user = makeUser({ password: 'old-password' })
+    const password = await hash('old-password', 8)
+
+    const user = makeUser({ password })
 
     inMemoryUserRepository.items.push(user)
 
@@ -33,7 +35,9 @@ describe('Update User Password', () => {
   })
 
   it('should not be able to edit an user password if current user is not the owner', async () => {
-    const user = makeUser({ password: 'old-password' })
+    const password = await hash('old-password', 8)
+
+    const user = makeUser({ password })
 
     inMemoryUserRepository.items.push(user)
 
@@ -49,7 +53,9 @@ describe('Update User Password', () => {
   })
 
   it('should not be able to edit an user password if old password does not match', async () => {
-    const user = makeUser({ password: 'not-match-old-password' })
+    const wrongPassword = await hash('wrong-password', 8)
+
+    const user = makeUser({ password: wrongPassword })
 
     inMemoryUserRepository.items.push(user)
 

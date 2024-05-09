@@ -1,39 +1,39 @@
 import { Role } from '@/utils/enums/roles.enum'
 import { InMemoryCustomExerciseRepository } from 'test/repositories/in-memory-custom-exercise-repository'
-import { InMemoryUserProfileRepository } from 'test/repositories/in-memory-user-profile.repository'
-import { makeUserProfile } from '../../enterprise/factories/make-user-profile'
+import { InMemoryUserRepository } from 'test/repositories/in-memory-user.repository'
 import { EditExerciseUseCase } from './edit-exercise'
 import { makeExercise } from '../../enterprise/factories/make-exercise'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Unauthorized } from './errors/unauthorized'
+import { makeUser } from '../../enterprise/factories/make-user'
 
-let inMemoryUserProfileRepository: InMemoryUserProfileRepository
+let inMemoryUserRepository: InMemoryUserRepository
 let inMemoryCustomExerciseRepository: InMemoryCustomExerciseRepository
 let sut: EditExerciseUseCase
 
 describe('Edit Exercise', () => {
   beforeEach(() => {
-    inMemoryUserProfileRepository = new InMemoryUserProfileRepository()
+    inMemoryUserRepository = new InMemoryUserRepository()
     inMemoryCustomExerciseRepository = new InMemoryCustomExerciseRepository()
     sut = new EditExerciseUseCase(
-      inMemoryUserProfileRepository,
+      inMemoryUserRepository,
       inMemoryCustomExerciseRepository,
     )
   })
 
   it('should be able to edit a custom exercise', async () => {
-    const userProfile = makeUserProfile({ role: Role.Professional })
+    const professional = makeUser({ role: Role.Professional })
     const exercise = makeExercise({
       name: 'supino reto',
       description: 'exercicio para peitoral',
-      createdById: userProfile.id,
+      createdById: professional.id,
     })
 
-    inMemoryUserProfileRepository.create(userProfile)
+    inMemoryUserRepository.create(professional)
     inMemoryCustomExerciseRepository.create(exercise)
 
     const result = await sut.execute({
-      currentUserId: userProfile.userId.toString(),
+      currentUserId: professional.id.toString(),
       exerciseId: exercise.id.toString(),
       name: 'supino inclinado',
       description: 'exercicio para peitoral superior',
@@ -47,7 +47,7 @@ describe('Edit Exercise', () => {
   })
 
   it('should not be able to edit a custom exercise if user is not the creator', async () => {
-    const userProfile = makeUserProfile({ role: Role.Professional })
+    const professional = makeUser({ role: Role.Professional })
 
     const exercise = makeExercise({
       name: 'supino reto',
@@ -55,11 +55,11 @@ describe('Edit Exercise', () => {
       createdById: new UniqueEntityID('another-id'),
     })
 
-    inMemoryUserProfileRepository.create(userProfile)
+    inMemoryUserRepository.create(professional)
     inMemoryCustomExerciseRepository.create(exercise)
 
     const result = await sut.execute({
-      currentUserId: userProfile.userId.toString(),
+      currentUserId: professional.id.toString(),
       exerciseId: exercise.id.toString(),
       name: 'supino inclinado',
       description: 'exercicio para peitoral superior',

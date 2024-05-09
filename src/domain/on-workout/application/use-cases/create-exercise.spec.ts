@@ -1,29 +1,32 @@
 import { InMemoryCustomExerciseRepository } from 'test/repositories/in-memory-custom-exercise-repository'
 import { CreateExerciseUseCase } from './create-exercise'
-import { InMemoryUserProfileRepository } from 'test/repositories/in-memory-user-profile.repository'
-import { makeUserProfile } from '../../enterprise/factories/make-user-profile'
+import { InMemoryUserRepository } from 'test/repositories/in-memory-user.repository'
+import { makeUser } from '../../enterprise/factories/make-user'
+import { Role } from '@/utils/enums/roles.enum'
 
-let inMemoryUserProfileRepository: InMemoryUserProfileRepository
+let inMemoryUserRepository: InMemoryUserRepository
 let inMemoryCustomExerciseRepository: InMemoryCustomExerciseRepository
 let sut: CreateExerciseUseCase
 
 describe('Create Exercise', () => {
   beforeEach(() => {
-    inMemoryUserProfileRepository = new InMemoryUserProfileRepository()
+    inMemoryUserRepository = new InMemoryUserRepository()
     inMemoryCustomExerciseRepository = new InMemoryCustomExerciseRepository()
     sut = new CreateExerciseUseCase(
-      inMemoryUserProfileRepository,
+      inMemoryUserRepository,
       inMemoryCustomExerciseRepository,
     )
   })
 
   it('should be able to create a custom exercise', async () => {
-    const userProfile = makeUserProfile()
+    const user = makeUser({
+      role: Role.Professional,
+    })
 
-    inMemoryUserProfileRepository.create(userProfile)
+    inMemoryUserRepository.create(user)
 
     const result = await sut.execute({
-      currentUserId: userProfile.userId.toString(),
+      currentUserId: user.id.toString(),
       name: 'exercise name',
       description: 'exercise description',
     })
@@ -32,7 +35,23 @@ describe('Create Exercise', () => {
     expect(inMemoryCustomExerciseRepository.items[0]).toMatchObject({
       name: 'exercise name',
       description: 'exercise description',
-      createdById: userProfile.id,
+      createdById: user.id,
     })
+  })
+
+  it('should not be able to create a custom exercise if the user is not a professional', async () => {
+    const user = makeUser({
+      role: Role.Athlete,
+    })
+
+    inMemoryUserRepository.create(user)
+
+    const result = await sut.execute({
+      currentUserId: user.id.toString(),
+      name: 'exercise name',
+      description: 'exercise description',
+    })
+
+    expect(result.isLeft()).toEqual(true)
   })
 })
