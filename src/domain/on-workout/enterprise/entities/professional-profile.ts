@@ -27,7 +27,7 @@ export class ProfessionalProfile extends Profile<ProfessionalProfileProps> {
   }
 
   static create(
-    props: Optional<ProfessionalProfileProps, 'createdAt' | 'workoutPlans'>,
+    props: Optional<ProfessionalProfileProps, 'workoutPlans' | 'createdAt'>,
     id?: UniqueEntityID,
   ) {
     const professionalProfile = new ProfessionalProfile(

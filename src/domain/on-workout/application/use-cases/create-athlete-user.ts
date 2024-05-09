@@ -8,6 +8,8 @@ import { AthleteProfile } from '../../enterprise/entities/athlete-profile'
 import { ResourceNotFound } from './errors/resource-not-found'
 import { Unauthorized } from './errors/unauthorized'
 import { Role } from '@/utils/enums/roles.enum'
+import { AthleteProfileRepository } from '../repositories/athlete-profile.repository'
+import { ProfessionalProfileRepository } from '../repositories/professional-profile.repository'
 
 interface CreateAthleteUserUseCaseRequest {
   currentUserId: string
@@ -25,52 +27,56 @@ type CreateAthleteUserUseCaseResponse = Either<
 >
 
 export class CreateAthleteUserUseCase {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private athleteProfileRepository: AthleteProfileRepository,
+    private professionalProfileRepository: ProfessionalProfileRepository,
+  ) {}
 
   async execute({
     currentUserId,
     email,
     profile,
   }: CreateAthleteUserUseCaseRequest): Promise<CreateAthleteUserUseCaseResponse> {
-    const userWhoRegistered = await this.userRepository.findById(currentUserId)
+    const professional =
+      await this.professionalProfileRepository.findByUserId(currentUserId)
 
-    if (!userWhoRegistered) {
+    if (!professional) {
       return left(new ResourceNotFound('User not found.'))
     }
 
-    if (userWhoRegistered.profile.role !== Role.Professional) {
+    if (professional.user.role !== Role.Professional) {
       return left(new Unauthorized())
     }
 
-    const userAlreadyExists = await this.userRepository.findByEmail(email)
+    const athleteAlreadyExists = await this.userRepository.findByEmail(email)
 
-    if (userAlreadyExists) {
-      return left(new Conflict('User already exists.'))
+    if (athleteAlreadyExists) {
+      return left(new Conflict('Athlete is already registered.'))
     }
 
-    const password = generatePassword()
+    const temporaryPassword = generatePassword()
 
-    const hashedPassword = await hash(password, 8)
-
-    const athleteProfile = AthleteProfile.create({
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      avatar: profile.avatar,
-    })
+    const hashedTemporaryPassword = await hash(temporaryPassword, 8)
 
     const user = User.create({
       email,
-      password: hashedPassword,
+      password: hashedTemporaryPassword,
       firstTimeLogin: true,
-      profile: athleteProfile,
-      profileId: athleteProfile.id,
+      role: Role.Athlete,
     })
 
-    await this.userRepository.create(user)
+    const athleteProfile = AthleteProfile.create({
+      ...profile,
+      userId: user.id,
+      user,
+    })
+
+    await this.athleteProfileRepository.create(athleteProfile)
 
     return right({
       user,
-      temporaryPassword: password,
+      temporaryPassword,
     })
   }
 }

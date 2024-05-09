@@ -1,14 +1,21 @@
-import { Role } from '@/utils/enums/roles.enum'
 import { CreateProfessionalUserUseCase } from './create-professional-user'
 import { InMemoryUserRepository } from 'test/repositories/in-memory-user.repository'
+import { InMemoryProfessionalProfileRepository } from 'test/repositories/in-memory-professional-profile.repository'
 
 let inMemoryUserRepository: InMemoryUserRepository
+let inMemoryProfessionalProfileRepository: InMemoryProfessionalProfileRepository
 let sut: CreateProfessionalUserUseCase
 
-describe('Create User', () => {
+describe('Create Professional User', () => {
   beforeEach(() => {
     inMemoryUserRepository = new InMemoryUserRepository()
-    sut = new CreateProfessionalUserUseCase(inMemoryUserRepository)
+    inMemoryProfessionalProfileRepository =
+      new InMemoryProfessionalProfileRepository()
+
+    sut = new CreateProfessionalUserUseCase(
+      inMemoryUserRepository,
+      inMemoryProfessionalProfileRepository,
+    )
   })
 
   it('should be able to create a professional user', async () => {
@@ -22,11 +29,9 @@ describe('Create User', () => {
     })
 
     expect(result.isRight()).toEqual(true)
-    expect(inMemoryUserRepository.items[0]).toMatchObject({
-      email: 'user@email.com',
-    })
-    expect(inMemoryUserRepository.items[0].userProfile).toMatchObject({
-      role: Role.Professional,
+    expect(inMemoryProfessionalProfileRepository[0]).toMatchObject({
+      firstName: 'User',
+      lastName: 'Name',
     })
   })
 })

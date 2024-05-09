@@ -4,6 +4,8 @@ import { Either, left, right } from '@/core/either'
 import { Conflict } from './errors/conflict'
 import { ProfessionalProfile } from '../../enterprise/entities/professional-profile'
 import { hash } from 'bcryptjs'
+import { Role } from '@/utils/enums/roles.enum'
+import { ProfessionalProfileRepository } from '../repositories/professional-profile.repository'
 
 interface CreateProfessionalUserUseCaseRequest {
   email: string
@@ -18,32 +20,39 @@ interface CreateProfessionalUserUseCaseRequest {
 type CreateProfessionalUserUseCaseResponse = Either<Conflict, { user: User }>
 
 export class CreateProfessionalUserUseCase {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private professionalProfileRepository: ProfessionalProfileRepository,
+  ) {}
 
   async execute({
     email,
     password,
     profile,
   }: CreateProfessionalUserUseCaseRequest): Promise<CreateProfessionalUserUseCaseResponse> {
-    const userAlreadyExists = await this.userRepository.findByEmail(email)
+    const professionalAlreadyExists =
+      await this.userRepository.findByEmail(email)
 
-    if (userAlreadyExists) {
-      return left(new Conflict('User already exists.'))
+    if (professionalAlreadyExists) {
+      return left(new Conflict('Professional is already registered.'))
     }
 
     const hashedPassword = await hash(password, 8)
-
-    const professionalProfile = ProfessionalProfile.create(profile)
 
     const user = User.create({
       email,
       password: hashedPassword,
       firstTimeLogin: false,
-      profile: professionalProfile,
-      profileId: professionalProfile.id,
+      role: Role.Professional,
     })
 
-    await this.userRepository.create(user)
+    const professionalProfile = ProfessionalProfile.create({
+      ...profile,
+      userId: user.id,
+      user,
+    })
+
+    await this.professionalProfileRepository.create(professionalProfile)
 
     return right({
       user,

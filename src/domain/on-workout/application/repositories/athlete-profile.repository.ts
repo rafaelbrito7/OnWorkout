@@ -1,9 +1,9 @@
 import { AthleteProfile } from '../../enterprise/entities/athlete-profile'
 
 export interface AthleteProfileRepository {
-  findById(athleteprofileId: string): Promise<AthleteProfile | null>
-  findByEmail(email: string): Promise<AthleteProfile | null>
-  create(athleteprofile: AthleteProfile): Promise<void>
-  save(athleteprofile: AthleteProfile): Promise<void>
-  delete(athleteprofile: AthleteProfile): Promise<void>
+  findById(athleteProfileId: string): Promise<AthleteProfile | null>
+  findByUserId(userId: string): Promise<AthleteProfile | null>
+  create(athleteProfile: AthleteProfile): Promise<void>
+  save(athleteProfile: AthleteProfile): Promise<void>
+  delete(athleteProfile: AthleteProfile): Promise<void>
 }

@@ -1,6 +1,10 @@
 import { Entity } from '@/core/entities/entity'
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { User } from './user'
 
 export interface ProfileProps {
+  userId: UniqueEntityID
+  user: User
   firstName: string
   lastName: string
   avatar?: string
@@ -11,6 +15,14 @@ export interface ProfileProps {
 export abstract class Profile<
   Props extends ProfileProps,
 > extends Entity<Props> {
+  get userId() {
+    return this.props.userId
+  }
+
+  get user() {
+    return this.props.user
+  }
+
   get firstName() {
     return this.props.firstName
   }
@@ -33,6 +45,16 @@ export abstract class Profile<
 
   private touch() {
     this.props.updatedAt = new Date()
+  }
+
+  set userId(userId: UniqueEntityID) {
+    this.props.userId = userId
+    this.touch()
+  }
+
+  set user(user: User) {
+    this.props.user = user
+    this.touch()
   }
 
   set firstName(firstName: string) {
